@@ -1,8 +1,9 @@
 import { useState } from "react";
-import React from "react";
 import "../App.css";
 
 function Drag() {
+    const [open, setOpen] = useState(false);
+
     const [modal, setModal] = useState({ id: 0, name: "" });
     const handleEdit = () => {
         setShowModal(true);
@@ -19,10 +20,33 @@ function Drag() {
         setTasks(tasks)
         setShowModal(false);
     };
+    const handleDelete = () => {
+        console.log("hello")
+        if (tasks != null) {
+            setTasks(
+                tasks.filter(a =>
+                    a.id !== tasks.id
+                )
+            );
+        }
+
+    }
+
+    const handleNewCardSave = () => {
+        setTasks([
+            ...tasks, {
+                id: 7,
+                name: newCardName,
+                category: newCardCategory,
+                bgcolor: "#76b5c5",
+                description: newCardDescription
+            }
+        ]);
+    };
+
     function cardClick(t) {
         tasks.filter((task) => {
             if (task.id === t.id) {
-                console.log("I am coming over here. ", task.name)
                 setModal({ id: t.id, name: t.name, description: t.description })
             }
 
@@ -30,6 +54,10 @@ function Drag() {
     }
 
     const [showModal, setShowModal] = useState(false);
+    const [newCardName, setNewCardName] = useState();
+    const [newCardCategory, setNewCardCategory] = useState();
+    const [newCardDescription, setNewCardDescription] = useState();
+
     const [tasks, setTasks] = useState([
         {
             id: 1,
@@ -97,7 +125,12 @@ function Drag() {
             bgcolor: "#e28743",
             description: "this is Api desciption"
         },
-    ]);
+    ],
+
+
+
+
+    );
 
     //this event is for the dragged task card.
     //this is required to save unique id in the dom event so that when we drop it we would know the card id
@@ -116,7 +149,10 @@ function Drag() {
         });
 
         setTasks([...newTasks]);
+
+
     };
+
     const getTask = () => {
         const tasksToRender = {
             wip: [],
@@ -126,47 +162,68 @@ function Drag() {
         };
 
         tasks.forEach((t) => {
-            tasksToRender[t.category].push(
-                <div
-                    id={t.id}
-                    onDragStart={(e) => onDragStart(e, t.name)}
-                    draggable
-                    className="task-card"
-                    style={{ backgroundColor: t.bgcolor }}
-                    onClick={() => cardClick(t)}
-                >
-                    {t.name}
 
+            tasksToRender[t.category].push(
+                <div>
+                    <div
+                        id={t.id}
+                        onDragStart={(e) => onDragStart(e, t.name)}
+                        draggable
+                        className="task-card"
+                        style={{ backgroundColor: t.bgcolor }}
+                        onClick={() => cardClick(t)}
+                        >
+                        {t.name}
+                    </div>
+                    <div>
+                        <button onClick={handleDelete}>Delete</button>
+                    </div>
                 </div>
+
             );
-        });
+
+        },
+
+
+        );
 
         return tasksToRender;
+
     };
-    //t id from props:
+
 
     return (
 
         <div className="drag-drop-container">
             <h2 className="drag-drop-header">JIRA BOARD: Sprint 21U</h2>
             <div className="drag-drop-board">
-                <div onClick={() => setShowModal(true)}
-                    className="wip"
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => {
-                        onDrop(e, "wip");
-                    }}
-                >
-                    <div className="task-header">In-PROGRESS</div>
-                    {getTask().wip}
+                <div>
+                    <div onClick={() => setShowModal(true)}
+                        className="wip"
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => {
+                            onDrop(e, "wip");
+
+                        }}
+
+                    >
+                        <div className="task-header">In-PROGRESS</div>
+                        {getTask().wip}
+
+
+                    </div>
 
                 </div>
+
                 < div onClick={() => setShowModal(true)}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => onDrop(e, "complete")}
+
                 >
                     <div className="task-header">COMPLETED</div>
+
                     {getTask().complete}
+
                 </div>
                 <div onClick={() => setShowModal(true)}
                     className="todos"
@@ -176,6 +233,7 @@ function Drag() {
                     }}
                 >
                     <div className="task-header">Todo</div>
+
                     {getTask().todos}
                 </div>
                 <div onClick={() => setShowModal(true)}
@@ -246,6 +304,63 @@ function Drag() {
                         <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
                     </>
                 ) : null}
+            </div>
+            <div className=" flex justify-center ">
+                <div className="relative w-1/3 "   >
+                    <button onClick={() => setOpen(!open)} className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg rounded-full">Add Card</button>
+                </div>
+
+                {open ? <modal>
+                    <form class="w-full max-w-sm">
+                        <div class="md:flex md:items-center mb-6">
+                            <div class="md:w-1/3">
+                                <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" >
+                                    Name
+                                </label>
+                            </div>
+                            <div class="md:w-2/3">
+                                <input value={newCardName}
+                                    onChange={e => setNewCardName(e.target.value)} class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" type="text" />
+                            </div>
+                        </div>
+                        <div class="md:flex md:items-center mb-6">
+                            <div class="md:w-1/3">
+                                <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" >
+                                    Category
+                                </label>
+                            </div>
+                            <div class="md:w-2/3">
+                                <input value={newCardCategory}
+                                    onChange={e => setNewCardCategory(e.target.value)} class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" type="text" />
+                            </div>
+                        </div>
+                        <div class="md:flex md:items-center mb-6">
+                            <div class="md:w-1/3">
+                                <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" >
+                                    Description
+                                </label>
+                            </div>
+                            <div class="md:w-2/3">
+                                <input value={newCardDescription}
+                                    onChange={e => setNewCardDescription(e.target.value)} class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" type="text" />
+                            </div>
+                        </div>
+                        <div class="md:flex md:items-center">
+                            <div class="md:w-1/3"></div>
+                            <div class="md:w-2/3">
+                                <button onClick={handleNewCardSave} class="shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded" type="button">
+                                    Save
+                                </button>
+                                <div>
+                                    <button onClick={handleDelete}>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                </modal> : null}
             </div>
         </div>
 
