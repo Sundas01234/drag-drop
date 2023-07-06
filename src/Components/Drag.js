@@ -6,15 +6,20 @@ function Drag() {
     const [color, setColor] = useState(null);
     const [file, setFile] = useState()
     const [open, setOpen] = useState(false);
-    const [modal, setModal] = useState({ id: 0, name: "" });
+    const [modal, setModal] = useState({ id: 0, name: "", image: null });
     const handleEdit = () => {
         setShowModal(true);
     };
-    const handleChange = (e) => {
-        if (tasks.id === setFile.id)
-            setFile(URL.createObjectURL(e.target.files[0]));
+    function handleChange(e) {
+        const file = e.target.files[0];
+        const imageURL = URL.createObjectURL(file);
 
+        setModal((prevModal) => ({
+            ...prevModal,
+            image: imageURL,
+        }));
     }
+
     const handleSave = () => {
         console.log("In handle save ", modal.name)
         tasks.filter((task) => {
@@ -23,6 +28,7 @@ function Drag() {
                 task.name = modal.name
                 task.description = modal.description
                 task.bgcolor = color
+
             }
         });
         setTasks(tasks)
@@ -232,7 +238,7 @@ function Drag() {
 
                 </div>
 
-                < div onClick={() => setShowModal(true)}
+                <div onClick={() => setShowModal(true)}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => onDrop(e, "complete")}
 
@@ -306,10 +312,11 @@ function Drag() {
                                     {/*footer*/}
                                     <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
                                         <div>
-                                            <input type="file" onChange={(tasks) => handleChange(tasks.id)} />
-                                            <img onChange={handleChange} src={file} />
+                                            <input type="file" onChange={handleChange} />
+                                            <img src={modal.image} />
                                             <br></br>
-                                            <button onClick={() => setFile(null)}>Remove</button>
+                                            <button onClick={() => setModal((prevModal) => ({ ...prevModal, image: null }))}>Remove</button>
+
                                         </div>
                                         <button
                                             className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
